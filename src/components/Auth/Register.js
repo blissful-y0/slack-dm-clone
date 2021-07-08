@@ -9,6 +9,7 @@ import {
   Message,
   Icon,
 } from "semantic-ui-react";
+import md5 from "md5";
 import { Link } from "react-router-dom";
 
 export function Register() {
@@ -19,9 +20,39 @@ export function Register() {
     passwordConfirmation: "",
   });
 
+  const usersRef = firebase.database().ref("users");
+  const [createdUser, setCreatedUser] = useState(null);
+  const [loading, setLoading] = useState(false);
+
   const handleSubmit = (event) => {
     event.preventDefault();
-    console.log(data.username);
+    setLoading(true);
+    firebase
+      .auth()
+      .createUserWithEmailAndPassword(data.email, data.password)
+      .then((userCredential) => {
+        console.log(userCredential);
+        userCredential.user.updateProfile({
+          displayName: data.username,
+          photoURL: `http://gravatar.com/avatar/${md5(
+            userCredential.user.email
+          )}?d=identicon`,
+        });
+        setCreatedUser(userCredential);
+      })
+      .then(() => {
+        usersRef.child(createdUser.user.uid).set({
+          name: createdUser.user.displayName,
+          avatar: createdUser.user.photoURL,
+        });
+      })
+      .catch((err) => {
+        console.log(err);
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.error(error.message);
+      });
   };
 
   const handleChange = (event) => {
@@ -77,14 +108,25 @@ export function Register() {
               onChange={handleChange}
               type="password"
             />
-            <Button color="orange" fluid size="large">
+            <Button
+              disabled={loading}
+              className={loading ? "Loading" : ""}
+              color="orange"
+              fluid
+              size="large"
+            >
               Submit
             </Button>
           </Segment>
         </Form>
-        <Message error>
-          <h3>Error</h3>
-        </Message>
+        {/* {errorMessage === null ? (
+          <div></div>
+        ) : (
+          <Message error>
+            <h3>Error</h3>
+            <h2>{errorMessage}</h2>
+          </Message>
+        )} */}
         <Message>
           Already a User? <Link to="/login">Login</Link>
         </Message>
@@ -93,42 +135,3 @@ export function Register() {
   );
 }
 export default Register;
-
-// displayErrors = (errors) =>
-//   errors.map((error, i) => <p key={i}>{error.message}</p>);
-
-// isFormEmpty = ({ username, email, password, passwordConfirmation }) => {
-//   return (
-//     !username.length ||
-//     !email.length ||
-//     !password.length ||
-//     !passwordConfirmation.length
-//   );
-// };
-
-// isPasswordValid = ({ password, passwordConfirmation }) => {
-//   if (password.length < 6 || passwordConfirmation.length < 6) {
-//     return false;
-//   } else if (password !== passwordConfirmation) {
-//     return false;
-//   } else {
-//     return true;
-//   }
-// };
-
-// handleChange = (event) => {
-//   this.setState({ [event.target.name]: event.target.value });
-// };
-
-// handleSubmit = (event) => {
-//   event.preventDefault();
-//   firebase
-//     .auth()
-//     .createUserWithEmailAndPassword(this.state.email, this.state.password)
-//     .then((userCredential) => {
-//       console.log(userCredential);
-//     })
-//     .catch((error) => {
-//       console.error(error.message);
-//     });
-// };
