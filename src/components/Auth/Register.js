@@ -49,16 +49,19 @@ export function Register() {
           .then(() =>
             saveUser(user).then(() => {
               console.log("User Saved");
+              setLoading(false);
             })
           )
           .catch((err) => {
             console.log(err);
+            setLoading(false);
           });
       })
       .catch((error) => {
         const errorCode = error.code;
         const errorMessage = error.message;
         console.log(errorCode, ":", errorMessage);
+        setLoading(false);
       });
   };
 
