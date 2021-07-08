@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import firebase from "../../firebase";
+import "firebase/database";
 import {
   Grid,
   Form,
@@ -19,10 +20,15 @@ export function Register() {
     password: "",
     passwordConfirmation: "",
   });
-
-  const usersRef = firebase.database().ref("users");
-  const [createdUser, setCreatedUser] = useState(null);
   const [loading, setLoading] = useState(false);
+  const database = firebase.database().ref("users/");
+
+  const saveUser = (user) => {
+    return database.child(user.uid).set({
+      name: user.displayName,
+      avartar: user.photoURL,
+    });
+  };
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -31,27 +37,28 @@ export function Register() {
       .auth()
       .createUserWithEmailAndPassword(data.email, data.password)
       .then((userCredential) => {
-        console.log(userCredential);
-        userCredential.user.updateProfile({
-          displayName: data.username,
-          photoURL: `http://gravatar.com/avatar/${md5(
-            userCredential.user.email
-          )}?d=identicon`,
-        });
-        setCreatedUser(userCredential);
-      })
-      .then(() => {
-        usersRef.child(createdUser.user.uid).set({
-          name: createdUser.user.displayName,
-          avatar: createdUser.user.photoURL,
-        });
-      })
-      .catch((err) => {
-        console.log(err);
-        setLoading(false);
+        const user = userCredential.user;
+        console.log(user);
+        user
+          .updateProfile({
+            displayName: data.username,
+            photoURL: `http://gravatar.com/avatar/${md5(
+              data.email
+            )}?d=identicon`,
+          })
+          .then(() =>
+            saveUser(user).then(() => {
+              console.log("User Saved");
+            })
+          )
+          .catch((err) => {
+            console.log(err);
+          });
       })
       .catch((error) => {
-        console.error(error.message);
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        console.log(errorCode, ":", errorMessage);
       });
   };
 
