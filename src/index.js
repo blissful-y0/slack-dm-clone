@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { Fragment, useEffect } from "react";
 import ReactDOM from "react-dom";
 import App from "./components/App";
 import Login from "./components/Auth/Login";
@@ -15,29 +15,44 @@ import {
 import { createStore } from "redux";
 import { Provider, connect } from "react-redux";
 import { composeWithDevTools } from "redux-devtools-extension";
-import { setUser } from "./actions";
+import { setUser, clearUser } from "./actions";
 import rootReducer from "./reducers";
+import Spinner from "./Spinner";
 
+const mapStateFromProps = (state) => ({
+  isLoading: state.user.isLoading,
+});
 const store = createStore(rootReducer, composeWithDevTools());
-const RootwithAuth = withRouter(connect(null, { setUser })(Root));
+const RootwithAuth = withRouter(
+  connect(mapStateFromProps, { setUser, clearUser })(Root)
+);
 
-export default function Root({ history, setUser }) {
+export default function Root({ history, setUser, isLoading, clearUser }) {
   useEffect(() => {
     firebase.auth().onAuthStateChanged((user) => {
       if (user) {
+        console.log(user)
         setUser(user);
-        console.log(user);
         history.push("/");
+      } else {
+        clearUser();
+        history.push("/login");
       }
     });
   }, []);
 
   return (
-    <Switch>
-      <Route exact path="/" component={App} />
-      <Route path="/login" component={Login} />
-      <Route path="/register" component={Register} />
-    </Switch>
+    <Fragment>
+      {isLoading ? (
+        <Spinner />
+      ) : (
+        <Switch>
+          <Route exact path="/" component={App} />
+          <Route path="/login" component={Login} />
+          <Route path="/register" component={Register} />
+        </Switch>
+      )}
+    </Fragment>
   );
 }
 
