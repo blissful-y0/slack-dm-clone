@@ -1,21 +1,42 @@
-import React, { Fragment, useState } from "react";
+import React, { Fragment, useEffect, useState } from "react";
 import { Icon, Menu, Modal, Form, Input, Button } from "semantic-ui-react";
 import firebase from "../../firebase";
 import UserPanel from "./UserPanel";
 
 function Channels({ currentUser }) {
-  const [channels, setChannels] = useState([]);
+  useEffect(() => {
+    addListners();
+  }, []);
+
+  const initialChannelState = {
+    createdBy: {
+      avatar: "",
+      name: "",
+    },
+    details: "",
+    id: "",
+    name: "",
+  };
   const [modalOpen, setModalOpen] = useState(false);
   const [channelInfo, setChannelInfo] = useState({
     channelName: "",
     channelDetails: "",
   });
+  const [channels, setChannels] = useState(initialChannelState);
   const channelsRef = firebase.database().ref("channels");
 
   const onClickModalOpen = () => setModalOpen((prev) => !prev);
 
   const handleChange = (event) => {
     setChannelInfo({ ...channelInfo, [event.target.name]: event.target.value });
+  };
+
+  const addListners = () => {
+    let loadedChannels = [];
+    channelsRef.on("child_added", (snapshot) => {
+      const data = snapshot.val();
+      setChannels({ id: key });
+    });
   };
 
   const addChannel = () => {
@@ -52,6 +73,20 @@ function Channels({ currentUser }) {
     } else {
       console.log("Fill");
     }
+  };
+
+  const displayChannels = (channels) => {
+    channels.length > 0 &&
+      channels.map((channel) => (
+        <Menu.Item
+          key={channel.id}
+          onClick={() => console.log(channel)}
+          name={channel.name}
+          style={{ opacity: 0.7 }}
+        >
+          # {channel.name}
+        </Menu.Item>
+      ));
   };
 
   return (
@@ -98,7 +133,7 @@ function Channels({ currentUser }) {
           </span>{" "}
           ({channels.length}) <Icon name="add" onClick={onClickModalOpen} />
         </Menu.Item>
-        {channels}
+        {displayChannels(channels)}
       </Menu.Menu>
     </Fragment>
   );

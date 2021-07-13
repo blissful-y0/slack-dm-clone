@@ -25,7 +25,7 @@ function UserPanel({ currentUser }) {
     },
     {
       key: "signOut",
-      text: <spa onClick={handleSignOut}>Sign Out</spa>,
+      text: <span onClick={handleSignOut}>Sign Out</span>,
     },
   ];
   return (
