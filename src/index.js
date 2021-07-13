@@ -31,7 +31,6 @@ export default function Root({ history, setUser, isLoading, clearUser }) {
   useEffect(() => {
     firebase.auth().onAuthStateChanged((user) => {
       if (user) {
-        console.log(user)
         setUser(user);
         history.push("/");
       } else {

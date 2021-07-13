@@ -1,7 +1,6 @@
 import React from "react";
-import { Dropdown, Grid, Header, Icon } from "semantic-ui-react";
+import { Dropdown, Grid, Header, Icon, Image } from "semantic-ui-react";
 import firebase from "../../firebase";
-import { connect } from "react-redux";
 
 function UserPanel({ currentUser }) {
   const handleSignOut = () => {
@@ -37,20 +36,27 @@ function UserPanel({ currentUser }) {
             <Icon name="code" />
             <Header.Content>DevChat</Header.Content>
           </Header>
+          <Header style={{ padding: "0.25rem" }} as="h4" inverted>
+            <Dropdown
+              trigger={
+                <span>
+                  <Image
+                    src={currentUser.photoURL}
+                    spaced="right"
+                    avatar
+                    circular
+                    size="mini"
+                  />
+                  {currentUser.displayName}
+                </span>
+              }
+              options={dropdownOptions}
+            />
+          </Header>
         </Grid.Row>
-        <Header style={{ padding: "0.25rem" }} as="h4" inverted>
-          <Dropdown
-            trigger={<span>{currentUser.displayName}</span>}
-            options={dropdownOptions}
-          />
-        </Header>
       </Grid.Column>
     </Grid>
   );
 }
 
-const mapStateFromProps = (state) => ({
-  currentUser: state.user.currentUser,
-});
-
-export default connect(mapStateFromProps)(UserPanel);
+export default UserPanel;

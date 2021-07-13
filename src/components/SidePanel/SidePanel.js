@@ -1,8 +1,10 @@
 import React from "react";
 import { Menu } from "semantic-ui-react";
 import UserPanel from "./UserPanel";
+import Channels from "./Channels";
+import { connect } from "react-redux";
 
-function SidePanel() {
+function SidePanel({ currentUser }) {
   return (
     <Menu
       size="large"
@@ -11,9 +13,14 @@ function SidePanel() {
       vertical
       style={{ bacgrkound: "#4c3c4c", fontSize: "1.2rem" }}
     >
-      <UserPanel />
+      <UserPanel currentUser={currentUser} />
+      <Channels currentUser={currentUser} />
     </Menu>
   );
 }
 
-export default SidePanel;
+const mapStateFromProps = (state) => ({
+  currentUser: state.user.currentUser,
+});
+
+export default connect(mapStateFromProps)(SidePanel);
