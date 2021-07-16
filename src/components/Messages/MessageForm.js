@@ -79,7 +79,7 @@ function MessageForm({ currentChannel, currentUser }) {
           color="teal"
           content="Upload Media"
           labelPosition="right"
-          icon="Cloud Upload"
+          icon="cloud upload"
         />
       </Button.Group>
     </Segment>
