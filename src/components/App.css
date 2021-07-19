@@ -21,4 +21,8 @@ body,
   z-index: 200;
 }
 
+.menu {
+  padding-bottom: 2em;
+}
+
 /* Message.js */
